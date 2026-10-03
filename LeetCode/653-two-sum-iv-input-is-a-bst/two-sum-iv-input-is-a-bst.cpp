@@ -9,36 +9,55 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
+class BSTIterator {
+    stack<TreeNode*> myStack;
+    bool reverse = true;
+public:
+    BSTIterator(TreeNode* root, bool isReverse){
+        reverse = isReverse;
+        pushAll(root);
+    }
+    
+    int next() {
+        TreeNode* temp = myStack.top();
+        myStack.pop();
+        if(!reverse) pushAll(temp->right);
+        else pushAll(temp->left);
+        return temp->val;
+    }
+    
+    bool hasNext() {
+        return !myStack.empty();
+    }
+private:
+    void pushAll(TreeNode* node){
+        for(; node != NULL;){
+            myStack.push(node);
+            if(reverse == true){
+                node = node->right;
+            }
+            else{
+                node = node->left;
+            }
+        }
+    }    
+};
+
+
+
 class Solution {
 public:
     bool findTarget(TreeNode* root, int k) {
-        vector<int> temp;
-        inorderTraversal(root,temp);
-        int n = temp.size();
-        int left = 0 , right = n-1;
-        while(left < right){
-            if(temp[left] + temp[right] == k) return true;
-            if(temp[left] + temp[right] < k){
-                left = left + 1;
-            }
-            else{
-                right = right - 1;
-            }
+        if(root == NULL) return NULL;
+        BSTIterator l(root,false);
+        BSTIterator r(root,true);
+        int i = l.next();
+        int j = r.next();
+        while(i < j){
+            if(i+j == k) return true;
+            else if(i+j < k) i = l.next();
+            else j = r.next();
         }
         return false;
     }
-    
-private:
-    vector<int> inorderTraversal(TreeNode* root,vector<int> &temp) {
-        // vector<int> temp;
-        helper(root,temp);
-        return temp;
-    }
-
-    void helper(TreeNode* root, vector<int> &temp){
-        if(root == NULL)return;
-        helper(root->left, temp);
-        temp.push_back(root->val);
-        helper(root->right, temp);
-    }    
 };
